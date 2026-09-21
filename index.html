@@ -3,20 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scalp Master - Pro Screener</title>
+    <title>Scalp Master - MEXC Pro Screener</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; }
         body { background-color: #0b0e11; color: #eaecef; padding: 20px; }
         
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #2b3139; flex-wrap: wrap; gap: 15px; }
         .header h1 { font-size: 22px; color: #ffffff; letter-spacing: 0.5px; }
-        .header h1 span { color: #fcd535; }
+        .header h1 span { color: #16b979; } /* MEXC Green Accent */
         
         .controls { display: flex; gap: 10px; align-items: center; }
         .btn { background-color: #2b3139; color: #eaecef; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 13px; transition: 0.2s; font-weight: 500; }
         .btn:hover { background-color: #3b424d; }
-        .btn-primary { background-color: #fcd535; color: #181a20; font-weight: 600; }
-        .btn-primary:hover { background-color: #e5c02a; }
+        .btn-primary { background-color: #16b979; color: #ffffff; font-weight: 600; }
+        .btn-primary:hover { background-color: #129a65; }
         
         .status { font-size: 13px; color: #0ecb81; display: flex; align-items: center; gap: 8px; font-weight: 500; }
         .status-dot { width: 8px; height: 8px; background-color: #0ecb81; border-radius: 50%; animation: pulse 1.5s infinite; }
@@ -28,7 +28,7 @@
         .category-title h2 { font-size: 16px; letter-spacing: 0.3px; }
         .coin-count { font-size: 12px; color: #848e9c; background: #1e2329; padding: 4px 8px; border-radius: 12px; }
 
-        /* Category Accents (Neutral Removed) */
+        /* Category Accents */
         #cat-ict .category-header { border-left-color: #8b5cf6; }
         #cat-golden .category-header { border-left-color: #fcd535; }
         #cat-v1 .category-header { border-left-color: #0ecb81; }
@@ -47,7 +47,7 @@
         .change-up { color: #0ecb81; }
         .change-down { color: #f6465d; }
 
-        /* Card Styles (Neutral Removed) */
+        /* Card Styles */
         .card-ict { background: linear-gradient(145deg, #2e1065, #170b3b); border-color: #5b21b6; color: #c4b5fd; }
         .card-ict:hover { border-color: #8b5cf6; box-shadow: 0 4px 12px rgba(139, 92, 246, 0.2); transform: translateY(-2px); }
         .card-ict .coin-name { color: #e6d5ff; }
@@ -69,13 +69,13 @@
         .card-oversold .coin-name { color: #fbe4e7; }
 
         #loading { text-align: center; color: #848e9c; padding: 60px; font-size: 16px; letter-spacing: 0.5px; }
-        .spinner-text { display: block; margin-top: 10px; color: #fcd535; font-weight: 500; }
+        .spinner-text { display: block; margin-top: 10px; color: #16b979; font-weight: 500; }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <h1>Scalp <span>Master</span></h1>
+        <h1>Scalp <span>Master (MEXC)</span></h1>
         <div class="controls">
             <div class="status" id="status-indicator">
                 <div class="status-dot"></div>
@@ -87,7 +87,7 @@
     </div>
 
     <div id="loading">
-        Connecting to Binance API...
+        Connecting to MEXC API...
         <span class="spinner-text" id="loading-subtext">Fetching live data for ALL active spot pairs. Please wait...</span>
     </div>
 
@@ -123,7 +123,7 @@
             <div class="grid" id="grid-v1"></div>
         </div>
 
-        <!-- Neutral Section Removed Here -->
+        <!-- Neutral Section Removed -->
 
         <div class="category" id="cat-bullish">
             <div class="category-header">
@@ -222,30 +222,31 @@
             try {
                 document.getElementById('loading').style.display = 'block';
                 document.getElementById('dashboard').style.display = 'none';
-                document.getElementById('update-time').innerText = "Scanning All Markets...";
+                document.getElementById('update-time').innerText = "Scanning MEXC Markets...";
                 document.getElementById('loading-subtext').innerText = "Filtering active spot pairs...";
                 
-                const infoRes = await fetch('https://api.binance.com/api/v3/exchangeInfo');
+                // Fetching from MEXC API
+                const infoRes = await fetch('https://api.mexc.com/api/v3/exchangeInfo');
                 const info = await infoRes.json();
                 
                 const activeSymbols = new Set();
                 info.symbols.forEach(s => {
-                    if (s.status === 'TRADING' && s.isSpotTradingAllowed) {
+                    if (s.status === 'ENABLED') {
                         activeSymbols.add(s.symbol);
                     }
                 });
 
-                const tickerRes = await fetch('https://api.binance.com/api/v3/ticker/24hr');
+                const tickerRes = await fetch('https://api.mexc.com/api/v3/ticker/24hr');
                 const tickers = await tickerRes.json();
                 
                 trackedSymbols = tickers
                     .filter(t => 
                         t.symbol.endsWith('USDT') && 
                         activeSymbols.has(t.symbol) && 
-                        !t.symbol.includes('UPUSDT') && 
-                        !t.symbol.includes('DOWNUSDT') &&
-                        !t.symbol.includes('BULLUSDT') &&
-                        !t.symbol.includes('BEARUSDT')
+                        !t.symbol.includes('3L') && 
+                        !t.symbol.includes('3S') &&
+                        !t.symbol.includes('5L') && 
+                        !t.symbol.includes('5S')
                     )
                     .sort((a, b) => parseFloat(b.quoteVolume) - parseFloat(a.quoteVolume))
                     .map(t => t.symbol);
@@ -253,14 +254,14 @@
                 await refreshRSIValues(true);
             } catch (error) {
                 console.error("Init Error:", error);
-                document.getElementById('update-time').innerText = "Connection Failed!";
+                document.getElementById('update-time').innerText = "MEXC Connection Failed!";
                 document.getElementById('loading-subtext').innerText = "Network Error. Please try again.";
             }
         }
 
         async function checkDailyTrend(symbol) {
             try {
-                const res = await fetch(`https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=1d&limit=21`);
+                const res = await fetch(`https://api.mexc.com/api/v3/klines?symbol=${symbol}&interval=1d&limit=21`);
                 const klines = await res.json();
                 const closes = klines.map(k => parseFloat(k[4]));
                 const lastClose = closes[closes.length - 1];
@@ -271,7 +272,7 @@
 
         async function get30mRSI(symbol) {
             try {
-                const res = await fetch(`https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=30m&limit=250`);
+                const res = await fetch(`https://api.mexc.com/api/v3/klines?symbol=${symbol}&interval=30m&limit=250`);
                 const klines = await res.json();
                 const closes = klines.map(k => parseFloat(k[4]));
                 return calculateWildersRSI(closes);
@@ -285,7 +286,7 @@
 
             try {
                 if (document.getElementById('dashboard').style.display === 'none') {
-                    document.getElementById('loading-subtext').innerText = `Calculating ICT Logic and Momentum for ${trackedSymbols.length} coins...`;
+                    document.getElementById('loading-subtext').innerText = `Calculating ICT Logic & Momentum for ${trackedSymbols.length} MEXC coins...`;
                 }
                 
                 let coinsData = [];
@@ -296,7 +297,7 @@
                     
                     const promises = chunk.map(async (symbol) => {
                         try {
-                            const res = await fetch(`https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=1h&limit=250`);
+                            const res = await fetch(`https://api.mexc.com/api/v3/klines?symbol=${symbol}&interval=1h&limit=250`);
                             const klines = await res.json();
                             if (klines.length < 20) return null;
                             
@@ -341,7 +342,7 @@
 
                     const results = await Promise.all(promises);
                     coinsData.push(...results.filter(r => r !== null));
-                    await delay(150); 
+                    await delay(200); // Slightly higher delay for MEXC API safety
                 }
 
                 refreshCounter++;
@@ -362,8 +363,7 @@
                 console.error("Refresh Error:", error);
                 document.getElementById('update-time').innerText = "Sync Error!";
             }
-        }
-              function updateValuesOnly(coins) {
+        }        function updateValuesOnly(coins) {
             coins.forEach(coin => {
                 let rsiElement = document.getElementById(`rsi-${coin.symbol}`);
                 let changeElement = document.getElementById(`change-${coin.symbol}`);
@@ -382,7 +382,6 @@
         }
 
         function renderDashboard(coins) {
-            // Yahan se neutral array khatam kar di gayi hai
             let ict = [], golden = [], v1 = [], bullish = [], oversold = [];
 
             coins.forEach(coin => {
@@ -392,7 +391,7 @@
                 else if (rsi >= 50 && rsi <= 60) v1.push(coin);
                 else if (rsi >= 30 && rsi < 42) bullish.push(coin);
                 else if (rsi >= 10 && rsi < 30) oversold.push(coin);
-                // RSI 42 se 49.99 walay coins ignore ho jayenge
+                // RSI 42 to 49.99 (Neutral) coins are completely ignored
             });
 
             ict.sort((a, b) => b.rsi - a.rsi);
@@ -407,8 +406,9 @@
                     let changeIcon = coin.change >= 0 ? '▲' : '▼';
                     let changeText = Math.abs(coin.change).toFixed(2) + '%';
 
+                    // TradingView link changed to MEXC exchange
                     return `
-                        <a href="https://www.tradingview.com/chart/?symbol=BINANCE:${coin.symbol}" target="_blank" class="coin-card ${cardClass}">
+                        <a href="https://www.tradingview.com/chart/?symbol=MEXC:${coin.symbol}" target="_blank" class="coin-card ${cardClass}">
                             <span class="coin-name">${coin.name}</span>
                             <div class="coin-data">
                                 <span class="coin-rsi" id="rsi-${coin.symbol}">RSI: ${coin.rsi.toFixed(2)}</span>
@@ -430,8 +430,6 @@
             document.getElementById('grid-v1').innerHTML = generateHTML(v1, 'card-v1');
             document.getElementById('count-v1').innerText = `${v1.length} coins`;
 
-            // Neutral section ki updates yahan se hata di gayi hain
-
             document.getElementById('grid-bullish').innerHTML = generateHTML(bullish, 'card-bullish');
             document.getElementById('count-bullish').innerText = `${bullish.length} coins`;
 
@@ -448,3 +446,5 @@
     </script>
 </body>
 </html>
+
+        
