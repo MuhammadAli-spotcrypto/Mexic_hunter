@@ -3,20 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scalp Master - Binance Pro</title>
+    <title>Scalp Master - ICT Focus</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; }
         body { background-color: #0b0e11; color: #eaecef; padding: 20px; }
         
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #2b3139; flex-wrap: wrap; gap: 15px; }
         .header h1 { font-size: 22px; color: #ffffff; letter-spacing: 0.5px; }
-        .header h1 span { color: #fcd535; }
+        .header h1 span { color: #8b5cf6; } /* ICT Purple Accent */
         
         .controls { display: flex; gap: 10px; align-items: center; }
         .btn { background-color: #2b3139; color: #eaecef; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 13px; transition: 0.2s; font-weight: 500; }
         .btn:hover { background-color: #3b424d; }
-        .btn-primary { background-color: #fcd535; color: #181a20; font-weight: 600; }
-        .btn-primary:hover { background-color: #e5c02a; }
+        .btn-primary { background-color: #8b5cf6; color: #ffffff; font-weight: 600; }
+        .btn-primary:hover { background-color: #7c3aed; }
         
         .status { font-size: 13px; color: #0ecb81; display: flex; align-items: center; gap: 8px; font-weight: 500; }
         .status-dot { width: 8px; height: 8px; background-color: #0ecb81; border-radius: 50%; animation: pulse 1.5s infinite; }
@@ -29,10 +29,7 @@
         .coin-count { font-size: 12px; color: #848e9c; background: #1e2329; padding: 4px 8px; border-radius: 12px; }
 
         #cat-ict .category-header { border-left-color: #8b5cf6; }
-        #cat-golden .category-header { border-left-color: #fcd535; }
-        #cat-v1 .category-header { border-left-color: #0ecb81; }
         #cat-bullish .category-header { border-left-color: #2970ff; }
-        #cat-oversold .category-header { border-left-color: #f6465d; }
 
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(125px, 1fr)); gap: 10px; }
 
@@ -49,44 +46,32 @@
         .card-ict { background: linear-gradient(145deg, #2e1065, #170b3b); border-color: #5b21b6; color: #c4b5fd; }
         .card-ict:hover { border-color: #8b5cf6; box-shadow: 0 4px 12px rgba(139, 92, 246, 0.2); transform: translateY(-2px); }
         .card-ict .coin-name { color: #e6d5ff; }
-
-        .card-golden { background: linear-gradient(145deg, #332700, #221a00); border-color: #4d3a00; color: #fcd535; }
-        .card-golden:hover { border-color: #fcd535; box-shadow: 0 4px 12px rgba(252, 213, 53, 0.15); transform: translateY(-2px); }
-        .card-golden .coin-name { color: #fff0b3; }
-        
-        .card-v1 { background: linear-gradient(145deg, #14281d, #0d1a13); border-color: #1a422b; color: #0ecb81; }
-        .card-v1:hover { border-color: #0ecb81; box-shadow: 0 4px 12px rgba(14, 203, 129, 0.15); transform: translateY(-2px); }
-        .card-v1 .coin-name { color: #e0f9ec; }
         
         .card-bullish { background: linear-gradient(145deg, #101c38, #0a1122); border-color: #182b52; color: #5b9cf6; }
         .card-bullish:hover { border-color: #5b9cf6; box-shadow: 0 4px 12px rgba(91, 156, 246, 0.15); transform: translateY(-2px); }
         .card-bullish .coin-name { color: #dce7fa; }
-        
-        .card-oversold { background: linear-gradient(145deg, #2e1519, #1f0e11); border-color: #4a1c22; color: #f6465d; }
-        .card-oversold:hover { border-color: #f6465d; box-shadow: 0 4px 12px rgba(246, 70, 93, 0.15); transform: translateY(-2px); }
-        .card-oversold .coin-name { color: #fbe4e7; }
 
         #loading { text-align: center; color: #848e9c; padding: 60px; font-size: 16px; letter-spacing: 0.5px; }
-        .spinner-text { display: block; margin-top: 10px; color: #fcd535; font-weight: 500; }
+        .spinner-text { display: block; margin-top: 10px; color: #8b5cf6; font-weight: 500; }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <h1>Scalp <span>Master</span></h1>
+        <h1>Scalp Master <span>(ICT Focus)</span></h1>
         <div class="controls">
             <div class="status" id="status-indicator">
                 <div class="status-dot"></div>
                 <span id="update-time">System Ready</span>
             </div>
-            <button class="btn" onclick="initDashboard()">🔄 Rescan Markets</button>
-            <button class="btn btn-primary" onclick="refreshRSIValues(true)">⚡ Update RSI & Sort</button>
+            <button class="btn" onclick="initDashboard()">🔄 Rescan</button>
+            <button class="btn btn-primary" onclick="refreshRSIValues(true)">⚡ Update RSI</button>
         </div>
     </div>
 
     <div id="loading">
         Connecting to Binance API...
-        <span class="spinner-text" id="loading-subtext">Fetching live data for ALL active spot pairs safely. Please wait...</span>
+        <span class="spinner-text" id="loading-subtext">Fetching live data for ALL active spot pairs. (Lightning Fast Mode)</span>
     </div>
 
     <div id="dashboard" style="display: none;">
@@ -94,48 +79,21 @@
         <div class="category" id="cat-ict" style="display: none;">
             <div class="category-header">
                 <div class="category-title">
-                    <h2>🔮 ICT Based (Double 1% Liq Sweep + RSI 30-42)</h2>
+                    <h2>🔮 VIP ICT Setup (Double Sweep + RSI 28-42)</h2>
                 </div>
                 <span class="coin-count" id="count-ict">0 coins</span>
             </div>
             <div class="grid" id="grid-ict"></div>
         </div>
 
-        <div class="category" id="cat-golden">
-            <div class="category-header">
-                <div class="category-title">
-                    <h2>🌟 Golden Setup (1H & 1D Up + 30m Momentum)</h2>
-                </div>
-                <span class="coin-count" id="count-golden">0 coins</span>
-            </div>
-            <div class="grid" id="grid-golden"></div>
-        </div>
-
-        <div class="category" id="cat-v1">
-            <div class="category-header">
-                <div class="category-title">
-                    <h2>⚡ V1 Method (RSI 50-60)</h2>
-                </div>
-                <span class="coin-count" id="count-v1">0 coins</span>
-            </div>
-            <div class="grid" id="grid-v1"></div>
-        </div>
-
         <div class="category" id="cat-bullish">
             <div class="category-header">
-                <div class="category-title"><h2>🔍 Hidden Bullish (RSI 30-41.99)</h2></div>
+                <div class="category-title"><h2>🔍 Hidden Bullish (RSI 28-42 Only)</h2></div>
                 <span class="coin-count" id="count-bullish">0 coins</span>
             </div>
             <div class="grid" id="grid-bullish"></div>
         </div>
 
-        <div class="category" id="cat-oversold">
-            <div class="category-header">
-                <div class="category-title"><h2>📉 Oversold (RSI 14-29.99)</h2></div>
-                <span class="coin-count" id="count-oversold">0 coins</span>
-            </div>
-            <div class="grid" id="grid-oversold"></div>
-        </div>
     </div>
 
     <script>
@@ -164,13 +122,6 @@
             if (avgLoss === 0) return 100;
             let rs = avgGain / avgLoss;
             return parseFloat((100 - (100 / (1 + rs))).toFixed(2)); 
-        }
-
-        function calculateSMA(closes, period = 20) {
-            if (closes.length < period) return 0;
-            let sum = 0;
-            for (let i = closes.length - period; i < closes.length; i++) sum += closes[i];
-            return sum / period;
         }
 
         function checkICTSetup(klines) {
@@ -217,7 +168,7 @@
                 document.getElementById('loading').style.display = 'block';
                 document.getElementById('dashboard').style.display = 'none';
                 document.getElementById('update-time').innerText = "Scanning Binance Markets...";
-                document.getElementById('loading-subtext').innerText = "Filtering active spot pairs securely...";
+                document.getElementById('loading-subtext').innerText = "Fetching all active spot pairs...";
                 
                 const infoRes = await fetch('https://api.binance.com/api/v3/exchangeInfo');
                 const info = await infoRes.json();
@@ -251,39 +202,19 @@
                 document.getElementById('loading-subtext').innerText = "Network Error. Please try again.";
             }
         }
-                async function checkDailyTrend(symbol) {
-            try {
-                const res = await fetch(`https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=1d&limit=21`);
-                const klines = await res.json();
-                const closes = klines.map(k => parseFloat(k[4]));
-                const lastClose = closes[closes.length - 1];
-                const sma20 = calculateSMA(closes, 20);
-                return lastClose > sma20; 
-            } catch (e) { return false; }
-        }
-
-        async function get30mRSI(symbol) {
-            try {
-                const res = await fetch(`https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=30m&limit=250`);
-                const klines = await res.json();
-                const closes = klines.map(k => parseFloat(k[4]));
-                return calculateWildersRSI(closes);
-            } catch (e) { return 0; }
-        }
-
-        async function refreshRSIValues(forceFullRefresh = false) {
+                async function refreshRSIValues(forceFullRefresh = false) {
             if (forceFullRefresh) {
                 refreshCounter = 5; 
             }
 
             try {
                 if (document.getElementById('dashboard').style.display === 'none') {
-                    document.getElementById('loading-subtext').innerText = `Calculating ICT Logic & Momentum for ${trackedSymbols.length} coins... (Anti-Block Active)`;
+                    document.getElementById('loading-subtext').innerText = `Analyzing ${trackedSymbols.length} coins for ICT & Bullish Setups...`;
                 }
                 
                 let coinsData = [];
-                // API LIMIT FIX: Ab chunk 10 ka hai aur delay zyada hai taake koi coin block na ho!
-                const chunkSize = 10; 
+                // Chunk size bara kar diya gaya hai kyun ke ab API par load bohat kam hai
+                const chunkSize = 35; 
 
                 for (let i = 0; i < trackedSymbols.length; i += chunkSize) {
                     const chunk = trackedSymbols.slice(i, i + chunkSize);
@@ -292,7 +223,7 @@
                         try {
                             const res = await fetch(`https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=1h&limit=250`);
                             const klines = await res.json();
-                            if (klines.length < 20) return null; // Naye listed coins ignore honge
+                            if (klines.length < 20) return null;
                             
                             const closes = klines.map(k => parseFloat(k[4])); 
                             const rsi1H = calculateWildersRSI(closes);
@@ -301,41 +232,35 @@
                             let previousClose = parseFloat(klines[klines.length - 2][4]);
                             let changePercent = ((currentClose - previousClose) / previousClose) * 100;
                             
-                            const lastClose = closes[closes.length - 1];
-                            const sma20_1H = calculateSMA(closes, 20);
-                            
-                            let is1HTrendUp = lastClose > sma20_1H;
-                            let isGolden = false;
-                            
                             let isICT = false;
-                            if (rsi1H >= 30 && rsi1H <= 42) {
-                                isICT = checkICTSetup(klines);
-                            }
+                            let isBullish = false;
 
-                            if (rsi1H >= 50 && rsi1H <= 60 && is1HTrendUp) {
-                                let is1DTrendUp = await checkDailyTrend(symbol);
-                                if(is1DTrendUp) {
-                                    let rsi30m = await get30mRSI(symbol);
-                                    if (rsi30m > rsi1H) {
-                                        isGolden = true;
-                                    }
+                            // EXACT RSI LIMIT SET (28 to 42)
+                            if (rsi1H >= 28 && rsi1H <= 42) {
+                                if (checkICTSetup(klines)) {
+                                    isICT = true; // Priority: Agar ICT hai toh yahan aayega
+                                } else {
+                                    isBullish = true; // Agar ICT nahi, toh automatically Bullish mein jayega
                                 }
                             }
+
+                            // Agar dono nahi hain, toh data return karne ki zaroorat hi nahi (Memory save)
+                            if (!isICT && !isBullish) return null;
 
                             return { 
                                 name: symbol.replace('USDT', ''), 
                                 symbol: symbol,
                                 rsi: rsi1H, 
                                 change: changePercent,
-                                isGolden: isGolden,
-                                isICT: isICT
+                                isICT: isICT,
+                                isBullish: isBullish
                             };
                         } catch (e) { return null; }
                     });
 
                     const results = await Promise.all(promises);
                     coinsData.push(...results.filter(r => r !== null));
-                    await delay(300); // BINANCE BLOCK PREVENTION DELAY
+                    await delay(100); 
                 }
 
                 refreshCounter++;
@@ -377,22 +302,15 @@
         }
 
         function renderDashboard(coins) {
-            let ict = [], golden = [], v1 = [], bullish = [], oversold = [];
+            let ict = [], bullish = [];
 
             coins.forEach(coin => {
-                let rsi = coin.rsi;
                 if (coin.isICT) ict.push(coin);
-                else if (coin.isGolden) golden.push(coin);
-                else if (rsi >= 50 && rsi <= 60) v1.push(coin);
-                else if (rsi >= 30 && rsi < 42) bullish.push(coin);
-                else if (rsi >= 14 && rsi < 30) oversold.push(coin); 
+                else if (coin.isBullish) bullish.push(coin);
             });
 
             ict.sort((a, b) => b.rsi - a.rsi);
-            golden.sort((a, b) => b.rsi - a.rsi);
-            v1.sort((a, b) => b.rsi - a.rsi);
             bullish.sort((a, b) => b.rsi - a.rsi);
-            oversold.sort((a, b) => b.rsi - a.rsi);
 
             const generateHTML = (arr, cardClass) => {
                 return arr.map(coin => {
@@ -416,17 +334,8 @@
             document.getElementById('count-ict').innerText = `${ict.length} coins`;
             document.getElementById('cat-ict').style.display = ict.length > 0 ? 'block' : 'none';
 
-            document.getElementById('grid-golden').innerHTML = generateHTML(golden, 'card-golden');
-            document.getElementById('count-golden').innerText = `${golden.length} coins`;
-
-            document.getElementById('grid-v1').innerHTML = generateHTML(v1, 'card-v1');
-            document.getElementById('count-v1').innerText = `${v1.length} coins`;
-
             document.getElementById('grid-bullish').innerHTML = generateHTML(bullish, 'card-bullish');
             document.getElementById('count-bullish').innerText = `${bullish.length} coins`;
-
-            document.getElementById('grid-oversold').innerHTML = generateHTML(oversold, 'card-oversold');
-            document.getElementById('count-oversold').innerText = `${oversold.length} coins`;
 
             document.getElementById('loading').style.display = 'none';
             document.getElementById('dashboard').style.display = 'block';
@@ -434,8 +343,8 @@
 
         initDashboard();
         
-        // Refresh timer increased to 75 seconds to avoid API blocks
-        setInterval(() => { refreshRSIValues(false); }, 75000);
+        // Refresh timer wapis 60 seconds (1 minute) par kar diya gaya hai kyun ke ab API load free hai
+        setInterval(() => { refreshRSIValues(false); }, 60000);
     </script>
 </body>
 </html>
