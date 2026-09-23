@@ -3,20 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scalp Master - MEXC Pro</title>
+    <title>Scalp Master - Binance Pro</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; }
         body { background-color: #0b0e11; color: #eaecef; padding: 20px; }
         
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #2b3139; flex-wrap: wrap; gap: 15px; }
         .header h1 { font-size: 22px; color: #ffffff; letter-spacing: 0.5px; }
-        .header h1 span { color: #16b979; }
+        .header h1 span { color: #fcd535; }
         
         .controls { display: flex; gap: 10px; align-items: center; }
         .btn { background-color: #2b3139; color: #eaecef; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 13px; transition: 0.2s; font-weight: 500; }
         .btn:hover { background-color: #3b424d; }
-        .btn-primary { background-color: #16b979; color: #ffffff; font-weight: 600; }
-        .btn-primary:hover { background-color: #129a65; }
+        .btn-primary { background-color: #fcd535; color: #181a20; font-weight: 600; }
+        .btn-primary:hover { background-color: #e5c02a; }
         
         .status { font-size: 13px; color: #0ecb81; display: flex; align-items: center; gap: 8px; font-weight: 500; }
         .status-dot { width: 8px; height: 8px; background-color: #0ecb81; border-radius: 50%; animation: pulse 1.5s infinite; }
@@ -67,13 +67,13 @@
         .card-oversold .coin-name { color: #fbe4e7; }
 
         #loading { text-align: center; color: #848e9c; padding: 60px; font-size: 16px; letter-spacing: 0.5px; }
-        .spinner-text { display: block; margin-top: 10px; color: #16b979; font-weight: 500; }
+        .spinner-text { display: block; margin-top: 10px; color: #fcd535; font-weight: 500; }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <h1>Scalp <span>Master (MEXC)</span></h1>
+        <h1>Scalp <span>Master</span></h1>
         <div class="controls">
             <div class="status" id="status-indicator">
                 <div class="status-dot"></div>
@@ -85,8 +85,8 @@
     </div>
 
     <div id="loading">
-        Connecting to MEXC Proxy...
-        <span class="spinner-text" id="loading-subtext">Fetching live data for Top 600 active spot pairs. Please wait...</span>
+        Connecting to Binance API...
+        <span class="spinner-text" id="loading-subtext">Fetching live data for ALL active spot pairs safely. Please wait...</span>
     </div>
 
     <div id="dashboard" style="display: none;">
@@ -142,19 +142,6 @@
         let trackedSymbols = []; 
         let refreshCounter = 5; 
 
-        // SMART PROXY FETCHER (Bypasses CORS Block)
-        async function fetchWithProxy(url) {
-            try {
-                const nocacheUrl = url.includes('?') ? `${url}&_t=${Date.now()}` : `${url}?_t=${Date.now()}`;
-                const proxy = 'https://api.allorigins.win/raw?url=';
-                const response = await fetch(proxy + encodeURIComponent(nocacheUrl));
-                if (!response.ok) return null;
-                return await response.json();
-            } catch (e) {
-                return null;
-            }
-        }
-
         function calculateWildersRSI(closes) {
             if (closes.length < 15) return null;
             let gains = 0, losses = 0;
@@ -173,6 +160,7 @@
                 avgGain = ((avgGain * 13) + currentGain) / 14;
                 avgLoss = ((avgLoss * 13) + currentLoss) / 14;
             }
+
             if (avgLoss === 0) return 100;
             let rs = avgGain / avgLoss;
             return parseFloat((100 - (100 / (1 + rs))).toFixed(2)); 
@@ -188,6 +176,7 @@
         function checkICTSetup(klines) {
             if (klines.length < 10) return false;
             let i = klines.length - 1;
+
             const isGreen = (index) => parseFloat(klines[index][4]) >= parseFloat(klines[index][1]);
             const getHigh = (index) => parseFloat(klines[index][2]);
             const getLow = (index) => parseFloat(klines[index][3]);
@@ -227,44 +216,45 @@
             try {
                 document.getElementById('loading').style.display = 'block';
                 document.getElementById('dashboard').style.display = 'none';
-                document.getElementById('update-time').innerText = "Connecting to MEXC...";
-                document.getElementById('loading-subtext').innerText = "Fetching TOP 600 active spot pairs to catch ICT setups...";
+                document.getElementById('update-time').innerText = "Scanning Binance Markets...";
+                document.getElementById('loading-subtext').innerText = "Filtering active spot pairs securely...";
                 
-                const info = await fetchWithProxy('https://api.mexc.com/api/v3/exchangeInfo');
-                if (!info) throw new Error("Proxy Blocked");
+                const infoRes = await fetch('https://api.binance.com/api/v3/exchangeInfo');
+                const info = await infoRes.json();
                 
                 const activeSymbols = new Set();
                 info.symbols.forEach(s => {
-                    if (s.status === 'ENABLED') activeSymbols.add(s.symbol);
+                    if (s.status === 'TRADING' && s.isSpotTradingAllowed) {
+                        activeSymbols.add(s.symbol);
+                    }
                 });
 
-                const tickers = await fetchWithProxy('https://api.mexc.com/api/v3/ticker/24hr');
-                if (!tickers) throw new Error("Proxy Blocked");
+                const tickerRes = await fetch('https://api.binance.com/api/v3/ticker/24hr');
+                const tickers = await tickerRes.json();
                 
                 trackedSymbols = tickers
                     .filter(t => 
                         t.symbol.endsWith('USDT') && 
                         activeSymbols.has(t.symbol) && 
-                        !t.symbol.includes('3L') && 
-                        !t.symbol.includes('3S') &&
-                        !t.symbol.includes('5L') && 
-                        !t.symbol.includes('5S')
+                        !t.symbol.includes('UPUSDT') && 
+                        !t.symbol.includes('DOWNUSDT') &&
+                        !t.symbol.includes('BULLUSDT') &&
+                        !t.symbol.includes('BEARUSDT')
                     )
                     .sort((a, b) => parseFloat(b.quoteVolume) - parseFloat(a.quoteVolume))
-                    .slice(0, 600) // MAGIC TRICK: Limit 600 coins!
                     .map(t => t.symbol);
 
                 await refreshRSIValues(true);
             } catch (error) {
                 console.error("Init Error:", error);
-                document.getElementById('update-time').innerText = "MEXC Connection Failed!";
-                document.getElementById('loading-subtext').innerText = "Network Error. Please try refreshing with ?v=5";
+                document.getElementById('update-time').innerText = "Connection Failed!";
+                document.getElementById('loading-subtext').innerText = "Network Error. Please try again.";
             }
         }
                 async function checkDailyTrend(symbol) {
             try {
-                const klines = await fetchWithProxy(`https://api.mexc.com/api/v3/klines?symbol=${symbol}&interval=1d&limit=21`);
-                if (!klines) return false;
+                const res = await fetch(`https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=1d&limit=21`);
+                const klines = await res.json();
                 const closes = klines.map(k => parseFloat(k[4]));
                 const lastClose = closes[closes.length - 1];
                 const sma20 = calculateSMA(closes, 20);
@@ -274,31 +264,35 @@
 
         async function get30mRSI(symbol) {
             try {
-                const klines = await fetchWithProxy(`https://api.mexc.com/api/v3/klines?symbol=${symbol}&interval=30m&limit=250`);
-                if (!klines) return 0;
+                const res = await fetch(`https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=30m&limit=250`);
+                const klines = await res.json();
                 const closes = klines.map(k => parseFloat(k[4]));
                 return calculateWildersRSI(closes);
             } catch (e) { return 0; }
         }
 
         async function refreshRSIValues(forceFullRefresh = false) {
-            if (forceFullRefresh) refreshCounter = 5; 
+            if (forceFullRefresh) {
+                refreshCounter = 5; 
+            }
 
             try {
                 if (document.getElementById('dashboard').style.display === 'none') {
-                    document.getElementById('loading-subtext').innerText = `Calculating logic for ${trackedSymbols.length} MEXC coins... (Takes ~10 sec)`;
+                    document.getElementById('loading-subtext').innerText = `Calculating ICT Logic & Momentum for ${trackedSymbols.length} coins... (Anti-Block Active)`;
                 }
                 
                 let coinsData = [];
-                const chunkSize = 25; 
+                // API LIMIT FIX: Ab chunk 10 ka hai aur delay zyada hai taake koi coin block na ho!
+                const chunkSize = 10; 
 
                 for (let i = 0; i < trackedSymbols.length; i += chunkSize) {
                     const chunk = trackedSymbols.slice(i, i + chunkSize);
                     
                     const promises = chunk.map(async (symbol) => {
                         try {
-                            const klines = await fetchWithProxy(`https://api.mexc.com/api/v3/klines?symbol=${symbol}&interval=1h&limit=250`);
-                            if (!klines || klines.length < 20) return null;
+                            const res = await fetch(`https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=1h&limit=250`);
+                            const klines = await res.json();
+                            if (klines.length < 20) return null; // Naye listed coins ignore honge
                             
                             const closes = klines.map(k => parseFloat(k[4])); 
                             const rsi1H = calculateWildersRSI(closes);
@@ -322,7 +316,9 @@
                                 let is1DTrendUp = await checkDailyTrend(symbol);
                                 if(is1DTrendUp) {
                                     let rsi30m = await get30mRSI(symbol);
-                                    if (rsi30m > rsi1H) isGolden = true;
+                                    if (rsi30m > rsi1H) {
+                                        isGolden = true;
+                                    }
                                 }
                             }
 
@@ -339,7 +335,7 @@
 
                     const results = await Promise.all(promises);
                     coinsData.push(...results.filter(r => r !== null));
-                    await delay(350); 
+                    await delay(300); // BINANCE BLOCK PREVENTION DELAY
                 }
 
                 refreshCounter++;
@@ -369,6 +365,7 @@
                 
                 if (rsiElement && changeElement) {
                     rsiElement.innerText = `RSI: ${coin.rsi.toFixed(2)}`;
+                    
                     let changeClass = coin.change >= 0 ? 'change-up' : 'change-down';
                     let changeIcon = coin.change >= 0 ? '▲' : '▼';
                     let changeText = Math.abs(coin.change).toFixed(2) + '%';
@@ -384,12 +381,11 @@
 
             coins.forEach(coin => {
                 let rsi = coin.rsi;
-                // Priority ICT check
                 if (coin.isICT) ict.push(coin);
                 else if (coin.isGolden) golden.push(coin);
                 else if (rsi >= 50 && rsi <= 60) v1.push(coin);
                 else if (rsi >= 30 && rsi < 42) bullish.push(coin);
-                else if (rsi >= 14 && rsi < 30) oversold.push(coin); // OVERSOLD UPDATED (14 to 30)
+                else if (rsi >= 14 && rsi < 30) oversold.push(coin); 
             });
 
             ict.sort((a, b) => b.rsi - a.rsi);
@@ -405,7 +401,7 @@
                     let changeText = Math.abs(coin.change).toFixed(2) + '%';
 
                     return `
-                        <a href="https://www.tradingview.com/chart/?symbol=MEXC:${coin.symbol}" target="_blank" class="coin-card ${cardClass}">
+                        <a href="https://www.tradingview.com/chart/?symbol=BINANCE:${coin.symbol}" target="_blank" class="coin-card ${cardClass}">
                             <span class="coin-name">${coin.name}</span>
                             <div class="coin-data">
                                 <span class="coin-rsi" id="rsi-${coin.symbol}">RSI: ${coin.rsi.toFixed(2)}</span>
@@ -437,7 +433,9 @@
         }
 
         initDashboard();
-        setInterval(() => { refreshRSIValues(false); }, 60000);
+        
+        // Refresh timer increased to 75 seconds to avoid API blocks
+        setInterval(() => { refreshRSIValues(false); }, 75000);
     </script>
 </body>
 </html>
